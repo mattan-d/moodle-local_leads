@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/zoom/db" VERSION="20200331" COMMENT="XMLDB file for Moodle local/zoom"
+<XMLDB PATH="local/leads/db" VERSION="20202506.00" COMMENT="XMLDB file for Moodle local/leads"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -13,7 +13,6 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="The unique id for each one."/>
-                <KEY NAME="internal" TYPE="unique" FIELDS="zoomuser" COMMENT="The unique zoomuser for each one."/>
             </KEYS>
         </TABLE>
     </TABLES>

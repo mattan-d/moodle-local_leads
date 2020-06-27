@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once('remote/Math/BigInteger.php');
-require_once('remote/Crypt/Random.php');
-require_once('remote/Crypt/RC4.php');
-require_once('remote/Crypt/Rijndael.php');
-require_once('remote/Crypt/Twofish.php');
-require_once('remote/Crypt/Blowfish.php');
-require_once('remote/Crypt/TripleDES.php');
-require_once('remote/Crypt/Hash.php');
-require_once('remote/Net/SSH2.php');
-
-
 defined('MOODLE_INTERNAL') || die;
 $config = get_config('local_leads');
 
@@ -32,8 +21,8 @@ if (is_siteadmin()) {
     $settings = new admin_settingpage('local_leads', get_string('pluginname', 'local_leads'));
     $ADMIN->add('localplugins', $settings);
 
-    $name = 'local_leads/numrecordings';
-    $setting = new admin_setting_configtext_with_maxlength($name, 'Orbit AppID', 'orbit app id', 5, PARAM_INT, 2, 2);
+    $name = 'local_leads/orbitappid';
+    $setting = new admin_setting_configtext($name, 'Orbit AppID', null, 0, PARAM_RAW, 10, 10);
     $settings->add($setting);
 
 }

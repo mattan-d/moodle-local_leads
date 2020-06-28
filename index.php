@@ -17,7 +17,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-$configs = get_config('local_leads');
+$config = get_config('local_leads');
 $locallib = new local_leads();
 
 /*
@@ -108,7 +108,7 @@ if (strcasecmp($query['action'], 'add') == 0) {
         // check input completeness
         if (!$post) {
             $response['status'] = 400;
-            $response['data'] = array('error' => 'Data tidak lengkap');
+            $response['data'] = array('error' => 'data not valid');
         } else {
             $data = new stdClass();
             $data->response = json_encode($json);
@@ -116,11 +116,13 @@ if (strcasecmp($query['action'], 'add') == 0) {
 
             $DB->insert_record('local_leads', $data);
 
+
             // send json to ORBIT
-            $url = 'https://bci1.or-bit.net/01412/ws/crmImport.asmx/LoginAndAddCrmPersonFullHttpGet';
-            $post->username = 'leads';
-            $post->password = 'M20tal20%%';
-            $post->firstname = 'Mattan';
+            //$url = 'https://bci1.or-bit.net/01412/ws/crmImport.asmx/LoginAndAddCrmPersonFullHttpGet';
+            $post->username = $config->orbituser;
+            $post->password = $config->orbitpass;
+
+/*            $post->firstname = 'Mattan';
             $post->lastname = 'test';
             $post->email = 'ma@ma.com';
             $post->telephonePrefix = '02';
@@ -129,10 +131,10 @@ if (strcasecmp($query['action'], 'add') == 0) {
             $post->cellphone = '6658940';
             $post->remark = 'blas';
             $post->entityCode = '1';
-            $post->referId = 'mattan';
+            $post->referId = 'mattan';*/
 
             $params = http_build_query($post, null, '&', PHP_QUERY_RFC3986);
-            $result = file_get_contents($url . '?' . $params);
+            $result = file_get_contents($config->orbiturl . '?' . $params);
             $result = simplexml_load_string($result);
 
             $response['status'] = 201;

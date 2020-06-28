@@ -21,8 +21,15 @@ if (is_siteadmin()) {
     $settings = new admin_settingpage('local_leads', get_string('pluginname', 'local_leads'));
     $ADMIN->add('localplugins', $settings);
 
-    $name = 'local_leads/orbitappid';
-    $setting = new admin_setting_configtext($name, 'Orbit AppID', null, 0, PARAM_RAW, 10, 10);
+    $name = 'local_leads/orbiturl';
+    $setting = new admin_setting_configtext($name, 'Orbit API endpoint', null, 0);
     $settings->add($setting);
 
+    $name = 'local_leads/orbituser';
+    $setting = new admin_setting_configtext($name, 'Orbit User', null, 0);
+    $settings->add($setting);
+
+    $name = 'local_leads/orbitpass';
+    $setting = new admin_setting_configpasswordunmask($name, 'Orbit Password', null, 0);
+    $settings->add($setting);
 }

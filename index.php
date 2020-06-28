@@ -20,8 +20,6 @@ require_once('lib.php');
 $configs = get_config('local_leads');
 $locallib = new local_leads();
 
-echo 999;
-die;
 /*
  *
 https://bci1.or-bit.net/01412/ws/crmImport.asmx/LoginAndAddCrmPersonFullHttpGet?username=leads&password=M20tal20%%&firstname=dor&lastname=mattan&email=mattan.dor1@gmail.com&telephonePrefix=02&telephone=6731773&cellphoneprefix=09&cellphone=556658940&remark=string&entityCode=IL&referId=GORDON
@@ -89,105 +87,56 @@ function deliver_response($response)
     exit;
 }
 
-
 // Set default HTTP response of 'Not Found'
 $response['status'] = 404;
 $response['data'] = NULL;
 
 $url_array = parse_url($_SERVER['REQUEST_URI']);
+$method = $_SERVER['REQUEST_METHOD'];
+
 parse_str($url_array['query'], $query);
 
-require_once("lib.php");
+require_once('lib.php');
 if (strcasecmp($query['action'], 'add') == 0) {
+    if ($method == 'POST') {
 
-    if ($method == 'GET') {
-        if (!isset($url_array[1])) { // if parameter idBarang not exist
-            // METHOD : GET api/barang
-            $data = $locallib->getAllBarang();
-            $response['status'] = 200;
-            $response['data'] = $data;
-        } else { // if parameter idBarang exist
-            // METHOD : GET api/barang/:idBarang
-            $idBarang = $url_array[1];
-            $data = $locallib->getBarang($idBarang);
-            if (empty($data)) {
-                $response['status'] = 404;
-                $response['data'] = array('error' => 'Barang tidak ditemukan');
-            } else {
-                $response['status'] = 200;
-                $response['data'] = $data;
-            }
-        }
-    } elseif ($method == 'POST') {
-
-        // METHOD : POST api/barang
+        // METHOD : POST api
         // get post from client
         $json = file_get_contents('php://input');
         $post = json_decode($json); // decode to object
 
         // check input completeness
-        if ($post->namaBarang == "" || $post->kategori == "" || $post->stok == "" || $post->hargaBeli == "" || $post->hargaJual == "") {
+        if (!$post) {
             $response['status'] = 400;
             $response['data'] = array('error' => 'Data tidak lengkap');
         } else {
-            $status = $locallib->insertBarang($post->namaBarang, $post->kategori, $post->stok, $post->hargaBeli, $post->hargaJual);
-            if ($status == 1) {
-                $response['status'] = 201;
-                $response['data'] = array('success' => 'Data berhasil disimpan');
-            } else {
-                $response['status'] = 400;
-                $response['data'] = array('error' => 'Terjadi kesalahan');
-            }
-        }
-    } elseif ($method == 'PUT') {
-        // METHOD : PUT api/barang/:idBarang
-        if (isset($url_array[1])) {
-            $idBarang = $url_array[1];
-            // check if idBarang exist in database
-            $data = $locallib->getBarang($idBarang);
-            if (empty($data)) {
-                $response['status'] = 404;
-                $response['data'] = array('error' => 'Data tidak ditemukan');
-            } else {
-                // get post from client
-                $json = file_get_contents('php://input');
-                $post = json_decode($json); // decode to object
+            $data = new stdClass();
+            $data->response = json_encode($json);
+            $data->timecreated = time();
 
-                // check input completeness
-                if ($post->namaBarang == "" || $post->kategori == "" || $post->stok == "" || $post->hargaBeli == "" || $post->hargaJual == "") {
-                    $response['status'] = 400;
-                    $response['data'] = array('error' => 'Data tidak lengkap');
-                } else {
-                    $status = $locallib->updateBarang($idBarang, $post->namaBarang, $post->kategori, $post->stok, $post->hargaBeli, $post->hargaJual);
-                    if ($status == 1) {
-                        $response['status'] = 200;
-                        $response['data'] = array('success' => 'Data berhasil diedit');
-                    } else {
-                        $response['status'] = 400;
-                        $response['data'] = array('error' => 'Terjadi kesalahan');
-                    }
-                }
-            }
-        }
-    } elseif ($method == 'DELETE') {
-        // METHOD : DELETE api/barang/:idBarang
-        if (isset($url_array[1])) {
-            $idBarang = $url_array[1];
-            // check if idBarang exist in database
-            $data = $locallib->getBarang($idBarang);
-            if (empty($data)) {
-                $response['status'] = 404;
-                $response['data'] = array('error' => 'Data tidak ditemukan');
-            } else {
-                $status = $locallib->deleteBarang($idBarang);
-                if ($status == 1) {
-                    $response['status'] = 200;
-                    $response['data'] = array('success' => 'Data berhasil dihapus');
-                } else {
-                    $response['status'] = 400;
-                    $response['data'] = array('error' => 'Terjadi kesalahan');
-                }
-            }
+            $DB->insert_record('local_leads', $data);
+
+            // send json to ORBIT
+            $url = 'https://bci1.or-bit.net/01412/ws/crmImport.asmx/LoginAndAddCrmPersonFullHttpGet';
+            $post->username = 'leads';
+            $post->password = 'M20tal20%%';
+            $post->firstname = 'Mattan';
+            $post->lastname = 'test';
+            $post->email = 'ma@ma.com';
+            $post->telephonePrefix = '02';
+            $post->telephone = '67317731';
+            $post->cellphoneprefix = '055';
+            $post->cellphone = '6658940';
+            $post->remark = 'blas';
+            $post->entityCode = '1';
+            $post->referId = 'mattan';
+
+            $params = http_build_query($post, null, '&', PHP_QUERY_RFC3986);
+            $result = file_get_contents($url . '?' . $params);
+            $result = simplexml_load_string($result);
+
+            $response['status'] = 201;
+            $response['data'] = array('success' => $result[0]);
         }
     }
 }

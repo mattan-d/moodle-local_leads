@@ -14,6 +14,6 @@ function xmldb_local_leads_install()
     global $CFG;
 
     // We always want to run the upgrade.
-    require_once($CFG->dirroot . '/local/zoom/db/upgrade.php');
+    require_once($CFG->dirroot . '/local/leads/db/upgrade.php');
     return xmldb_local_leads_upgrade(0);
 }
